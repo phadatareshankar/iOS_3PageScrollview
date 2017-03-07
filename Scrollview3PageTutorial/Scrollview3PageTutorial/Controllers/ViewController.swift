@@ -22,6 +22,38 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        self.setupScreen()
+        
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
+    
+    // MARK: - ScrollViewDelegate Methods
+    
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
+    {
+        self.makeCardCenter()
+    }
+    
+    
+    
+    public func scrollViewDidScroll(_ scrollView: UIScrollView)
+    {
+        self.addPagesByOrder(pageOrder:.Previous)
+        self.addPagesByOrder(pageOrder:.Current)
+        self.addPagesByOrder(pageOrder:.Next)
+        
+    }
+    
+    // MARK: - Class Methods
+    
+    func setupScreen()  {
+        
         self.scrollView.delegate = self
         self.scrollView.contentSize = CGSize.init(width: self.view.frame.size.width*3, height: self.scrollView.frame.size.height);
         
@@ -35,40 +67,13 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
     }
     
-    
-    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
-    {
-        self.makeCardCenter()
-    }
-    
-    func makeCardCenter() {
-        let pageWidth = scrollView.frame.size.width
-        let page : Int = Int(floor((scrollView.contentOffset.x - (pageWidth/2)) / pageWidth) + 1)
-        
-        if page == 0 {
-            scrollView.contentOffset = CGPoint(x: pageWidth*(CGFloat(1)), y: 0)
-        } else if page == 2 {
-            scrollView.contentOffset = CGPoint(x: pageWidth, y: 0)
-        }else if page == 1
-        {
-            scrollView.contentOffset = CGPoint(x: pageWidth, y: 0)
-        }
-    }
-    
-    public func scrollViewDidScroll(_ scrollView: UIScrollView)
-    {
-        self.addPagesByOrder(pageOrder:.Previous)
-        self.addPagesByOrder(pageOrder:.Current)
-        self.addPagesByOrder(pageOrder:.Next)
-        
-    }
     @IBAction func nextButtonAction(_ sender: Any) {
         
         UIView.animate(withDuration: 0.4, animations: {
             self.scrollView.setContentOffset(CGPoint.init(x: self.scrollView.frame.width*2, y: 0), animated: false)
             
         }) { (Bool) in
-            self.scrollView.scrollRectToVisible(CGRect.init(x: self.view.frame.size.width, y: 0, width: self.scrollView.frame.size.width, height: self.scrollView.frame.size.height), animated: false)
+            self.scrollRectToCenter()
             self.makeCardCenter()
         }
         
@@ -79,15 +84,24 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         UIView.animate(withDuration: 0.4, animations: {
             self.scrollView.setContentOffset(CGPoint.init(x: 0, y: 0), animated: false)
         }) { (Bool) in
-            
-            self.scrollView.scrollRectToVisible(CGRect.init(x: self.view.frame.size.width, y: 0, width: self.scrollView.frame.size.width, height: self.scrollView.frame.size.height), animated: false)
+            self.scrollRectToCenter()
             self.makeCardCenter()
         }
         
     }
     
-    func addPagesByOrder(pageOrder: PageOrder) {
+    func scrollRectToCenter() {
         
+        self.scrollView.scrollRectToVisible(CGRect.init(x: self.view.frame.size.width, y: 0, width: self.scrollView.frame.size.width, height: self.scrollView.frame.size.height), animated: false)
+    }
+    
+    func makeCardCenter() {
+        
+        scrollView.contentOffset = CGPoint(x: scrollView.frame.size.width, y: 0)
+        
+    }
+    
+    func addPagesByOrder(pageOrder: PageOrder) {
         
         switch pageOrder {
         case .Current:
@@ -111,12 +125,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         self.scrollView.addSubview(card.view);
         
-    }
-    
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
 
